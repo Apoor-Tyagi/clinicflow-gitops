@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clinicflow-api
+  namespace: clinicflow-dev
+spec:
+  type: ClusterIP
+  selector:
+    app: clinicflow-api
+  ports:
+    - port: 80
+      targetPort: 8000

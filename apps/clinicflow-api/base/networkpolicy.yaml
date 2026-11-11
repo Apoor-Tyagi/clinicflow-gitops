@@ -1,0 +1,54 @@
+# 1. Deny all incoming traffic to every pod in the namespace by default
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: clinicflow-dev
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# 2. Allow traffic to the API on port 8000 from the same namespace
+#    and from kube-system (where the Traefik ingress controller runs)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-ingress
+  namespace: clinicflow-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: clinicflow-api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: TCP
+          port: 8000
+---
+# 3. Allow Postgres traffic only from the API pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-postgres-from-api
+  namespace: clinicflow-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: clinicflow-api
+      ports:
+        - protocol: TCP
+          port: 5432
