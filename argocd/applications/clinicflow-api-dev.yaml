@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: clinicflow-api-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Apoor-Tyagi/clinicflow-gitops.git
+    targetRevision: main
+    path: apps/clinicflow-api/base
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: clinicflow-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
