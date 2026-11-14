@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+images:
+  - name: clinicflow-api
+    newName: 016817716801.dkr.ecr.us-east-1.amazonaws.com/clinicflow-api
+    newTag: fbf770e6859e05a200280efde070664cba2a57d2
