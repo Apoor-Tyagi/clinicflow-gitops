@@ -3,10 +3,13 @@ kind: Service
 metadata:
   name: clinicflow-api
   namespace: clinicflow-dev
+  labels:
+    app: clinicflow-api
 spec:
   type: ClusterIP
   selector:
     app: clinicflow-api
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 8000
