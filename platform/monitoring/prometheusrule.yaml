@@ -1,0 +1,42 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: clinicflow-slo
+  namespace: monitoring
+spec:
+  groups:
+    - name: clinicflow-sli
+      rules:
+        - record: clinicflow:http_error_ratio:rate5m
+          expr: sum(rate(http_requests_total{namespace="clinicflow-dev",path=~"/api/.*",status=~"5.."}[5m])) / sum(rate(http_requests_total{namespace="clinicflow-dev",path=~"/api/.*"}[5m]))
+        - record: clinicflow:http_error_ratio:rate30m
+          expr: sum(rate(http_requests_total{namespace="clinicflow-dev",path=~"/api/.*",status=~"5.."}[30m])) / sum(rate(http_requests_total{namespace="clinicflow-dev",path=~"/api/.*"}[30m]))
+        - record: clinicflow:http_error_ratio:rate1h
+          expr: sum(rate(http_requests_total{namespace="clinicflow-dev",path=~"/api/.*",status=~"5.."}[1h])) / sum(rate(http_requests_total{namespace="clinicflow-dev",path=~"/api/.*"}[1h]))
+        - record: clinicflow:http_error_ratio:rate3h
+          expr: sum(rate(http_requests_total{namespace="clinicflow-dev",path=~"/api/.*",status=~"5.."}[3h])) / sum(rate(http_requests_total{namespace="clinicflow-dev",path=~"/api/.*"}[3h]))
+        - record: clinicflow:http_latency_p95:rate5m
+          expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{namespace="clinicflow-dev",path=~"/api/.*"}[5m])))
+    - name: clinicflow-slo-alerts
+      rules:
+        - alert: ClinicflowErrorBudgetFastBurn
+          expr: clinicflow:http_error_ratio:rate1h > (14.4 * 0.001) and clinicflow:http_error_ratio:rate5m > (14.4 * 0.001)
+          for: 2m
+          labels:
+            severity: page
+          annotations:
+            summary: "Error budget burning at more than 14x (99.9 percent availability SLO)"
+        - alert: ClinicflowErrorBudgetSlowBurn
+          expr: clinicflow:http_error_ratio:rate3h > (6 * 0.001) and clinicflow:http_error_ratio:rate30m > (6 * 0.001)
+          for: 15m
+          labels:
+            severity: ticket
+          annotations:
+            summary: "Error budget burning at more than 6x"
+        - alert: ClinicflowLatencySLOBreach
+          expr: clinicflow:http_latency_p95:rate5m > 0.3
+          for: 10m
+          labels:
+            severity: ticket
+          annotations:
+            summary: "p95 latency above 300 ms for 10 minutes"

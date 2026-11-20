@@ -2,10 +2,11 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: clinicflow-api
-  namespace: clinicflow-dev
-  labels:
-    app: clinicflow-api
+  namespace: monitoring
 spec:
+  namespaceSelector:
+    matchNames:
+      - clinicflow-dev
   selector:
     matchLabels:
       app: clinicflow-api
