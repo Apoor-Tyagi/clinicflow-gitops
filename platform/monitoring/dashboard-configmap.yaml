@@ -1,0 +1,33 @@
+apiVersion: v1
+data:
+  clinicflow-api.json: |
+    {
+      "title": "ClinicFlow API",
+      "uid": "clinicflow-api",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "15s",
+      "time": {"from": "now-30m", "to": "now"},
+      "panels": [
+        {"id": 1, "type": "timeseries", "title": "Request rate (req/s)", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "targets": [{"expr": "sum(rate(http_requests_total{namespace=\"clinicflow-dev\",path=~\"/api/.*\"}[1m]))", "legendFormat": "requests"}]},
+        {"id": 2, "type": "timeseries", "title": "Error ratio (5xx), SLO 0.1%", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "targets": [{"expr": "clinicflow:http_error_ratio:rate5m", "legendFormat": "error ratio"}]},
+        {"id": 3, "type": "timeseries", "title": "p95 latency (s), SLO 0.3", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "targets": [{"expr": "clinicflow:http_latency_p95:rate5m", "legendFormat": "p95"}]},
+        {"id": 4, "type": "timeseries", "title": "Available replicas and restarts", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+         "datasource": {"type": "prometheus", "uid": "prometheus"},
+         "targets": [
+           {"expr": "kube_deployment_status_replicas_available{namespace=\"clinicflow-dev\",deployment=\"clinicflow-api\"}", "legendFormat": "replicas"},
+           {"expr": "sum(kube_pod_container_status_restarts_total{namespace=\"clinicflow-dev\"})", "legendFormat": "restarts"}]}
+      ]
+    }
+kind: ConfigMap
+metadata:
+  labels:
+    grafana_dashboard: "1"
+  name: clinicflow-api-dashboard
+  namespace: monitoring
