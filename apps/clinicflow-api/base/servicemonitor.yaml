@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: clinicflow-api
+  namespace: clinicflow-dev
+  labels:
+    app: clinicflow-api
+spec:
+  selector:
+    matchLabels:
+      app: clinicflow-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
