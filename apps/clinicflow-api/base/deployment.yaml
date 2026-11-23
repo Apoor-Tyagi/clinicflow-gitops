@@ -35,6 +35,12 @@ spec:
                 secretKeyRef:
                   name: api-config
                   key: DATABASE_URL
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: api-config
+                  key: ADMIN_TOKEN
+                  optional: true
           livenessProbe:
             httpGet:
               path: /health

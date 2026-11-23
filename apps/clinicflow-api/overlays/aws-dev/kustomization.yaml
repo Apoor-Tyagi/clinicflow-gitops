@@ -5,4 +5,4 @@ resources:
 images:
   - name: clinicflow-api
     newName: 016817716801.dkr.ecr.us-east-1.amazonaws.com/clinicflow-api
-    newTag: c064d1a58c7b1874a05a7b0282677b8e9cba3980
+    newTag: 3e2ffced4acd16b33a65127a22ed95fa5c7ee20b
